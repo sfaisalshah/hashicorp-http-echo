@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  fe:
+    image: faisalshah/nginx:v1
+    depends_on: 
+      - app
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - app-net
+    deploy:
+      resources:
+        limits:
+          memory: '64M'
+      placement:
+        constraints:
+          - node.hostname == node-1
+
+  app:
+    image: hashicorp/http-echo
+    command: -text="hello world"
+    ports:
+      - 5678:5678
+    networks:
+      - app-net
+    deploy: 
+      replicas: 3
+      resources:
+        limits:
+          memory: '64M'
+      placement:
+        constraints:
+          - node.role == worker
+
+networks:
+  app-net:
+    driver: overlay
